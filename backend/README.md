@@ -30,6 +30,19 @@ Then run the frontend (`npm run dev` from project root). Vite proxies `/api` and
 
 Check status: `GET /api/security/status` or **Settings** in the AEGIS UI.
 
+## RAG dashboard (Streamlit)
+
+Pipeline overview and demo search, separate from the React app:
+
+```bash
+cd backend
+source .venv/bin/activate
+pip install streamlit pandas
+streamlit run streamlit_rag_dashboard.py
+```
+
+Opens at `http://localhost:8501`.
+
 ## Key rotation
 
 1. Decrypt with the old key (export data via API).
