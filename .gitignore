@@ -1,6 +1,12 @@
 node_modules/
+test-clone/
 dist/
 .wrangler/
 .dev.vars
 *.local
 .DS_Store
+.env
+backend/data/
+backend/__pycache__/
+backend/**/__pycache__/
+.venv/

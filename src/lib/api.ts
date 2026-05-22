@@ -93,6 +93,17 @@ export interface StatsResponse {
   contradictions: number;
   missing_evidence: number;
   backend_online: boolean;
+  encryption?: string;
+}
+
+export interface SecurityStatusResponse {
+  encryption_enabled: boolean;
+  algorithm: string;
+  key_configured: boolean;
+  key_derivation: string;
+  databases: string[];
+  storage_path: string;
+  files_encrypted: number;
 }
 
 // ── Core fetch helper ──────────────────────────────────────────────────────
@@ -131,6 +142,10 @@ export function fetchMovement(caseId: string): Promise<MovementResponse> {
 
 export function fetchStats(): Promise<StatsResponse> {
   return apiFetch<StatsResponse>("/api/stats");
+}
+
+export function fetchSecurityStatus(): Promise<SecurityStatusResponse> {
+  return apiFetch<SecurityStatusResponse>("/api/security/status");
 }
 
 // ── Evidence search ────────────────────────────────────────────────────────
