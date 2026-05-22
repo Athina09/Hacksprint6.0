@@ -573,7 +573,7 @@ export function AutopsyPanel({ caseId }: { caseId: string }) {
   const isSimulating = simPhase !== "idle";
 
   useEffect(() => {
-    if (caseId !== "C-2041") return;
+    if (caseId !== "MG-101") return;
     fetchAutopsyByCPR(binding.cpr)
       .then(r => {
         setRecord(r);
@@ -602,7 +602,7 @@ export function AutopsyPanel({ caseId }: { caseId: string }) {
   function handleDismiss() {
     setSimPhase("idle");
     setDataLoaded(true);
-    if (!record && caseId === "C-2041") {
+    if (!record && caseId === "MG-101") {
       fetchAutopsyByCPR(binding.cpr).then(setRecord).catch(() => {});
     }
   }

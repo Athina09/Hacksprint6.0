@@ -40,7 +40,7 @@ export const Copilot = forwardRef<CopilotHandle, CopilotProps>(function Copilot(
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [log, setLog] = useState<{ who: "user" | "ai"; text: string }[]>([
-    { who: "ai", text: "AEGIS Copilot online. I have indexed 24 evidence items across C-2041. Ask me anything." },
+    { who: "ai", text: "AEGIS Copilot online. Evidence indexed for MG-101, MG-102, MG-103. Ask me anything." },
   ]);
 
   const send = useCallback(async (text: string) => {
@@ -82,7 +82,7 @@ export const Copilot = forwardRef<CopilotHandle, CopilotProps>(function Copilot(
         <div>
           <div className="text-sm font-medium tracking-tight">AEGIS Copilot</div>
           <div className="font-mono text-[10px] text-muted-foreground">
-            {variant === "embedded" ? "briefing session · C-2041" : "holographic assistant · online"}
+            {variant === "embedded" ? "briefing session · MG-101" : "holographic assistant · online"}
           </div>
         </div>
         <Badge variant="secondary" className="hidden border border-primary/35 bg-secondary/40 sm:inline-flex">

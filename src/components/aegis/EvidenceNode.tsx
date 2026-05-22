@@ -96,7 +96,7 @@ export function VictimNode({ data, selected }: NodeProps) {
       <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border-2 border-cyan-400/70 bg-cyan-900/60 shadow-[0_0_20px_rgba(34,211,238,0.5)]">
         <Skull className="h-6 w-6 text-cyan-300" />
       </div>
-      <div className="mb-0.5 text-[10px] uppercase tracking-[0.18em] text-cyan-500/80 font-semibold">Victim · Case C-2041</div>
+      <div className="mb-0.5 text-[10px] uppercase tracking-[0.18em] text-cyan-500/80 font-semibold">Victim · Case MG-101</div>
       <div className="text-base font-bold text-white tracking-wide">{data.label}</div>
       <div className="mt-0.5 text-[11px] text-cyan-300/80">{data.sublabel}</div>
       <div className="mt-3 w-full space-y-1.5 border-t border-cyan-800/60 pt-2">

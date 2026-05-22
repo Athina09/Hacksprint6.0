@@ -38,7 +38,7 @@ Check status: `GET /api/security/status` or **Settings** in the AEGIS UI.
 
 ## RAG dashboard (Streamlit)
 
-Pipeline overview and demo search, separate from the React app:
+Measured F1 / recall / precision from `seed_data.py` eval queries (`rag_eval.py`). Plain Streamlit tables + bar charts:
 
 ```bash
 cd backend

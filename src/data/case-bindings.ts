@@ -18,71 +18,63 @@ export interface CaseBinding {
 }
 
 export const CASE_BINDINGS: Record<string, CaseBinding> = {
-  "C-2041": {
-    caseId: "C-2041",
-    cpr: "CPR/2025/CHN/0891",
-    victimName: "R. Suresh",
-    autopsyReportId: "A-2041",
-    pathologist: "Dr. K. Meenakshi, CFSL Chennai",
-    reportDate: "26 Apr 2025 · 23:47",
-    pmiDisplay: "8 – 10 Hours",
-    pmiNote: "Vitreous potassium + algor mortis",
-    causeOfDeath:
-      "Blunt force trauma — occipital region with depressed skull fracture and subdural hemorrhage. Secondary: hepatic hemorrhage.",
+  "MG-101": {
+    caseId: "MG-101",
+    cpr: "CPR/2026/MUM/1201",
+    victimName: "A. Deshmukh",
+    autopsyReportId: "A-101",
+    pathologist: "Dr. S. Patil, CFSL Mumbai",
+    reportDate: "10 May 2026 · 08:30",
+    pmiDisplay: "6 – 8 Hours",
+    pmiNote: "Vitreous potassium + dock recovery time",
+    causeOfDeath: "Blunt force trauma — mooring hook strike, cranial impact",
     forensicFindings: [
-      "3 patterned blunt impacts — iron rod (87 cm)",
-      "Hemoperitoneum ~1,200 ml confirmed",
-      "Post-mortem relocation via livor mortis",
-      "Trace diazepam — pre-assault sedation",
-      "DNA match S-118 at 99.2% on weapon",
-      "Defensive wounds: victim conscious at onset",
+      "Toolmark match on jacket",
+      "Dock CCTV 02:14 assault at Gate 7",
+      "Harbor witness timeline 02:05–02:20",
     ],
     liveInsights: [
-      "Brain hemorrhage detected — primary cause of death confirmed",
-      "Liver trauma indicates blunt force abdominal impact",
-      "Hemoperitoneum ~1,200 ml — internal bleeding active at time of recovery",
-      "Defensive wounds on left arm confirm victim was conscious during assault",
-      "Diazepam trace suggests pre-assault chemical sedation",
-      "Post-mortem body relocation confirmed via livor mortis analysis",
-      "Cell tower + physical evidence converge: TOD window 20:15–20:55",
-      "Suspect S-118 DNA match at 99.2% on recovered weapon",
+      "CCTV confirms weapon class — mooring hook",
+      "Constable statement aligns with assault window",
     ],
     hasTimeline: true,
     hasMovement: true,
     hasInvestigationGraph: true,
   },
-  "C-2042": {
-    caseId: "C-2042",
-    cpr: "CPR/2025/CBE/0310",
-    victimName: "—",
-    autopsyReportId: "A-2042",
-    pathologist: "Dr. P. Lakshmi, CFSL Coimbatore",
-    reportDate: "29 Apr 2025 · 16:20",
-    pmiDisplay: "—",
-    pmiNote: "Robbery case — no victim autopsy",
-    causeOfDeath: "N/A — bank heist investigation",
-    forensicFindings: ["Bank CCTV: four suspects at Peelamedu branch 14:02"],
-    liveInsights: ["Evidence index: CCTV-led robbery reconstruction"],
+  "MG-102": {
+    caseId: "MG-102",
+    cpr: "CPR/2026/PUN/0882",
+    victimName: "N. Iyer",
+    autopsyReportId: "A-102",
+    pathologist: "Dr. A. Joshi, AFMC Pune",
+    reportDate: "12 May 2026 · 14:00",
+    pmiDisplay: "4 – 6 Hours",
+    pmiNote: "Indoor lab scene · cyanide ingestion",
+    causeOfDeath: "Acute cyanide poisoning",
+    forensicFindings: [
+      "Potassium cyanide 2.1 mg/L gastric aspirate",
+      "Badge P-442 lab access 19:48",
+    ],
+    liveInsights: ["Digital log ties suspect badge to chemistry wing"],
     hasTimeline: false,
     hasMovement: false,
     hasInvestigationGraph: false,
   },
-  "C-2043": {
-    caseId: "C-2043",
-    cpr: "CPR/2025/MDU/0442",
-    victimName: "Pending ID",
-    autopsyReportId: "A-2043",
-    pathologist: "Dr. K. Mohan, GH Madurai",
-    reportDate: "01 May 2025 · 09:15",
-    pmiDisplay: "12 – 18 Hours",
-    pmiNote: "River recovery · moderate putrefaction",
-    causeOfDeath: "Suspicious death — pending full histopathology",
+  "MG-103": {
+    caseId: "MG-103",
+    cpr: "CPR/2026/GOA/0033",
+    victimName: "Unknown male",
+    autopsyReportId: "A-103",
+    pathologist: "Dr. P. Fernandes, GMC Goa",
+    reportDate: "14 May 2026 · 11:20",
+    pmiDisplay: "10 – 14 Hours",
+    pmiNote: "Beach recovery · saltwater immersion",
+    causeOfDeath: "Pending — trauma vs drowning",
     forensicFindings: [
-      "Body recovered Vaigai river bank",
-      "Sarcophagidae stage III — extended PMI",
-      "Relocation hypothesis under review",
+      "Body Baga north tide line 06:30",
+      "Fibreglass fragment — possible vessel strike",
     ],
-    liveInsights: ["Hypothesis: body relocation likely (livor vs recovery position)"],
+    liveInsights: ["Coast guard notes inconsistent with simple drowning"],
     hasTimeline: false,
     hasMovement: false,
     hasInvestigationGraph: false,
@@ -90,7 +82,7 @@ export const CASE_BINDINGS: Record<string, CaseBinding> = {
 };
 
 export function getCaseBinding(caseId: string): CaseBinding {
-  return CASE_BINDINGS[caseId] ?? CASE_BINDINGS["C-2041"];
+  return CASE_BINDINGS[caseId] ?? CASE_BINDINGS["MG-101"];
 }
 
 export function bmiLabel(heightCm: number, weightKg: number): string {
@@ -98,5 +90,5 @@ export function bmiLabel(heightCm: number, weightKg: number): string {
   const bmi = weightKg / (m * m);
   const label =
     bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "High";
-  return `${bmi.toFixed(1)} — ${label}`;
+  return `${bmi.toFixed(1)} (${label})`;
 }

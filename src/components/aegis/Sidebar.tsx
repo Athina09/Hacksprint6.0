@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 const items = [
   { to: "/", label: "Command Center", icon: LayoutDashboard },
   { to: "/cases", label: "Cases", icon: FolderSearch },
-  { to: "/cases/C-2041", label: "Investigation Graph", icon: Network },
+  { to: "/cases/MG-101", label: "Investigation Graph", icon: Network },
   { to: "/timeline", label: "Timeline Replay", icon: Clock },
   { to: "/heatmap", label: "Heatmaps", icon: Map },
   { to: "/copilot", label: "AI Copilot", icon: Bot },

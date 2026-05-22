@@ -1145,7 +1145,7 @@ export function InvestigationGraph({ onSelect }: { onSelect?: (id: string | null
         <div className="flex items-center gap-2 rounded-lg border border-cyan-500/20 bg-slate-950/80 px-3 py-1.5 backdrop-blur">
           <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
           <span className="text-[10px] font-semibold uppercase tracking-widest text-cyan-400">Living Evidence Canvas</span>
-          <span className="text-[10px] text-slate-500">· Case C-2041</span>
+          <span className="text-[10px] text-slate-500">· Case MG-101</span>
           <span className="ml-1 text-[10px] text-slate-600">
             {liveNodes.length} nodes · {liveEdges.length} relations
           </span>

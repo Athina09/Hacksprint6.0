@@ -105,7 +105,7 @@ function CaseWorkspace() {
             )}
             {tab === "graph" && !binding.hasInvestigationGraph && (
               <div className="glass rounded-xl px-6 py-12 text-center text-sm text-muted-foreground">
-                Investigation graph is seeded for <span className="font-mono text-foreground">C-2041</span> only. Open that case for the full network view.
+                Investigation graph is seeded for <span className="font-mono text-foreground">MG-101</span> only. Open that case for the full network view.
               </div>
             )}
             {tab === "timeline" && <TimelineReplay caseId={caseId} />}

@@ -25,9 +25,9 @@ export const districts = [
 ];
 
 export const cases: CaseSummary[] = [
-  { id: "C-2041", fir: "FIR/2025/CHN/00412", title: "Central Station Homicide", district: "Chennai", status: "Active", severity: "critical", aiConfidence: 87, flagged: true, officer: "Insp. R. Karthik", opened: "2026-04-22", type: "Homicide", victims: 1, suspects: 3, evidence: 24, contradictions: 4 },
-  { id: "C-2042", fir: "FIR/2025/CBE/00231", title: "Peelamedu Bank Heist", district: "Coimbatore", status: "Active", severity: "high", aiConfidence: 73, flagged: true, officer: "Insp. P. Anitha", opened: "2026-04-29", type: "Robbery", victims: 0, suspects: 4, evidence: 18, contradictions: 2 },
-  { id: "C-2043", fir: "FIR/2025/MDU/00871", title: "Vaigai River Body", district: "Madurai", status: "Review", severity: "high", aiConfidence: 64, flagged: true, officer: "SI K. Mohan", opened: "2026-05-01", type: "Suspicious Death", victims: 1, suspects: 2, evidence: 16, contradictions: 5 },
+  { id: "MG-101", fir: "FIR/2026/MUM/1201", title: "Mumbai Harbor Assault", district: "Mumbai", status: "Active", severity: "critical", aiConfidence: 84, flagged: true, officer: "Insp. V. Nair", opened: "2026-05-10", type: "Assault", victims: 1, suspects: 2, evidence: 12, contradictions: 2 },
+  { id: "MG-102", fir: "FIR/2026/PUN/0882", title: "Pune Lab Poisoning", district: "Pune", status: "Active", severity: "critical", aiConfidence: 91, flagged: true, officer: "Insp. R. Kulkarni", opened: "2026-05-12", type: "Homicide", victims: 1, suspects: 1, evidence: 9, contradictions: 1 },
+  { id: "MG-103", fir: "FIR/2026/GOA/0033", title: "Goa Beach Recovery", district: "Goa", status: "Review", severity: "high", aiConfidence: 67, flagged: true, officer: "SI P. Fernandes", opened: "2026-05-14", type: "Suspicious Death", victims: 1, suspects: 0, evidence: 8, contradictions: 3 },
   { id: "C-2044", fir: "FIR/2025/SLM/00120", title: "Salem Highway Hit & Run", district: "Salem", status: "Active", severity: "medium", aiConfidence: 58, flagged: false, officer: "Insp. M. Selvi", opened: "2026-05-03", type: "Vehicular", victims: 1, suspects: 1, evidence: 9, contradictions: 1 },
   { id: "C-2045", fir: "FIR/2025/TRY/00094", title: "Trichy Market Stabbing", district: "Trichy", status: "Active", severity: "high", aiConfidence: 81, flagged: true, officer: "SI A. Ramesh", opened: "2026-05-04", type: "Assault", victims: 1, suspects: 2, evidence: 12, contradictions: 0 },
   { id: "C-2046", fir: "FIR/2025/TIR/00067", title: "Tirunelveli Arson", district: "Tirunelveli", status: "Cold", severity: "medium", aiConfidence: 41, flagged: false, officer: "Insp. D. Vinod", opened: "2026-03-19", type: "Arson", victims: 0, suspects: 0, evidence: 6, contradictions: 0 },
@@ -48,13 +48,13 @@ export const heatmapZones = [
 
 export const liveFeed = [
   { t: "12s ago", text: "New CCTV uploaded — Chennai Central E-Gate 4", tag: "evidence" },
-  { t: "47s ago", text: "Contradiction detected in C-2041 (TOD vs witness)", tag: "alert" },
-  { t: "1m ago", text: "Suspect movement reconstructed — C-2042", tag: "ai" },
-  { t: "2m ago", text: "Autopsy confidence increased to 82% (C-2043)", tag: "forensic" },
+  { t: "47s ago", text: "Contradiction detected in MG-101 (TOD vs witness)", tag: "alert" },
+  { t: "1m ago", text: "Toxicology match confirmed — MG-102", tag: "ai" },
+  { t: "2m ago", text: "Autopsy confidence increased to 82% (MG-103)", tag: "forensic" },
   { t: "3m ago", text: "DNA match found — Suspect S-118 in C-2047", tag: "ai" },
-  { t: "5m ago", text: "Officer Karthik joined investigation room C-2041", tag: "officer" },
+  { t: "5m ago", text: "Officer Nair joined investigation room MG-101", tag: "officer" },
   { t: "8m ago", text: "Phone metadata parsed — 412 call records (C-2045)", tag: "evidence" },
-  { t: "11m ago", text: "Hypothesis updated: Body relocation likely (C-2043)", tag: "ai" },
+  { t: "11m ago", text: "Hypothesis updated: Boat strike likely (MG-103)", tag: "ai" },
 ];
 
 // ─── Forensic Investigation Graph for Case C-2041 ───────────────────────────
@@ -346,7 +346,7 @@ export const contradictions = [
 ];
 
 export const autopsy = {
-  caseId: "C-2041",
+  caseId: "MG-101",
   subject: "R. Suresh, M, 34",
   causeOfDeath: "Blunt force trauma — occipital",
   todRange: "19:30 – 21:00",

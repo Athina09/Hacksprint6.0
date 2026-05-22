@@ -6,7 +6,6 @@ Run: uvicorn main:app --host 127.0.0.1 --port 8000
 from __future__ import annotations
 
 import os
-import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -15,7 +14,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
 from security import Aes256GcmCipher, EncryptionError, SecureDatabase
-from seed_data import AUTOPSIES, CASE_MOVEMENT, CASE_TIMELINES, EVIDENCE_INDEX
+from rag_pipeline import retrieve_evidence
+from seed_data import (
+    AUTOPSIES,
+    CASE_MOVEMENT,
+    CASE_TIMELINES,
+    EVIDENCE_INDEX,
+    SEED_VERSION,
+)
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -31,14 +37,24 @@ STORES = {
 
 
 def _bootstrap() -> None:
-    if not STORES["autopsies"].exists():
+    marker = DATA_DIR / ".seed_version"
+    stale = not marker.exists() or marker.read_text(encoding="utf-8").strip() != SEED_VERSION
+    if stale:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
         STORES["autopsies"].write(AUTOPSIES)
-    if not STORES["evidence"].exists():
         STORES["evidence"].write(EVIDENCE_INDEX)
-    if not STORES["timelines"].exists():
         STORES["timelines"].write(CASE_TIMELINES)
-    if not STORES["movement"].exists():
         STORES["movement"].write(CASE_MOVEMENT)
+        marker.write_text(SEED_VERSION, encoding="utf-8")
+    else:
+        if not STORES["autopsies"].exists():
+            STORES["autopsies"].write(AUTOPSIES)
+        if not STORES["evidence"].exists():
+            STORES["evidence"].write(EVIDENCE_INDEX)
+        if not STORES["timelines"].exists():
+            STORES["timelines"].write(CASE_TIMELINES)
+        if not STORES["movement"].exists():
+            STORES["movement"].write(CASE_MOVEMENT)
 
 
 _bootstrap()
@@ -131,28 +147,41 @@ def case_movement(case_id: str):
 
 
 @app.get("/api/search")
-def search_evidence(query: str, n_results: int = Query(5, ge=1, le=20)):
+def search_evidence(
+    query: str,
+    n_results: int = Query(5, ge=1, le=20),
+    case_id: str | None = Query(None),
+):
     evidence = STORES["evidence"].read([])
-    tokens = set(re.findall(r"\w+", query.lower()))
-    scored = []
-    for item in evidence:
-        doc = item.get("document", "").lower()
-        meta = str(item.get("metadata", {})).lower()
-        text = doc + " " + meta
-        hits = sum(1 for t in tokens if t in text)
-        if hits:
-            scored.append((hits, item))
-    scored.sort(key=lambda x: x[0], reverse=True)
-    results = []
-    for hits, item in scored[:n_results]:
-        results.append(
+    out = retrieve_evidence(evidence, query, n_results=n_results, case_id=case_id)
+    return {
+        "query": out["query"],
+        "results": [
             {
-                "document": item["document"],
-                "metadata": item.get("metadata", {}),
-                "distance": round(1.0 / max(hits, 1), 3),
+                "document": r["document"],
+                "metadata": r["metadata"],
+                "distance": r["distance"],
             }
-        )
-    return {"query": query, "results": results}
+            for r in out["results"]
+        ],
+    }
+
+
+@app.get("/api/rag/flow")
+def rag_flow():
+    """RAG stage definitions for Streamlit / docs."""
+    from rag_pipeline import DOMAIN_USES, RAG_FLOW
+
+    return {"stages": RAG_FLOW, "domains": DOMAIN_USES}
+
+
+@app.get("/api/rag/metrics")
+def rag_metrics(case_id: str = Query("MG-101")):
+    """Measured RAG metrics from seed eval (same as Streamlit dashboard)."""
+    from rag_metrics import get_all_metrics, refresh_metrics_cache
+
+    refresh_metrics_cache()
+    return get_all_metrics(case_id)
 
 
 @app.post("/pmi/predict")

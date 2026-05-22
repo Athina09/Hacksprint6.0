@@ -66,10 +66,10 @@ export function searchCommandBar(raw: string): CommandSearchHit[] {
     ) {
       push({
         id: `node-${n.id}`,
-        kind: "C-2041 graph",
+        kind: "MG-101 graph",
         title: n.label,
         subtitle: n.sublabel ?? n.type,
-        to: "/cases/C-2041",
+        to: "/cases/MG-101",
       });
     }
   }
@@ -84,7 +84,7 @@ export function searchCommandBar(raw: string): CommandSearchHit[] {
       kind: "Forensic",
       title: `Autopsy · ${autopsy.caseId}`,
       subtitle: autopsy.subject,
-      to: "/cases/C-2041",
+      to: "/cases/MG-101",
     });
   }
 
@@ -121,7 +121,7 @@ export function searchCommandBar(raw: string): CommandSearchHit[] {
       { keys: ["setting"], title: "Settings", subtitle: "Workspace", to: "/settings" },
       { keys: ["heatmap", "heat map"], title: "Risk heatmaps", subtitle: "District risk", to: "/heatmap" },
       { keys: ["cases"], title: "All cases", subtitle: "Registry", to: "/cases" },
-      { keys: ["graph", "investigation"], title: "Investigation graph", subtitle: "C-2041 network view", to: "/cases/C-2041" },
+      { keys: ["graph", "investigation"], title: "Investigation graph", subtitle: "MG-101 network view", to: "/cases/MG-101" },
     ];
     for (const n of nav) {
       if (n.keys.some((k) => q.includes(k))) {

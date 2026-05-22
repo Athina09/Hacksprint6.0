@@ -1,13 +1,11 @@
 """
-AEGIS RAG pipeline overview (Streamlit demo)
+Evidence search accuracy — one chart for the selected case.
 
-  cd backend && source .venv/bin/activate
   streamlit run streamlit_rag_dashboard.py
 """
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -18,94 +16,54 @@ if str(BACKEND) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from rag_metrics import PIPELINES, get_all_metrics, get_pipeline, search_rag_meta
-from seed_data import EVIDENCE_INDEX
+from rag_eval import load_stores
+from rag_metrics import DATA_DIR, get_eval_detail, refresh_metrics_cache
+from rag_pipeline import retrieve_evidence
+from seed_data import EVAL_CASES, EVIDENCE_INDEX
 
-DOMAINS = list(PIPELINES.keys())
-DOMAIN_LABELS = {
-    "autopsy": "Autopsy",
-    "tod": "TOD",
-    "pmi": "PMI",
-    "timeline": "Timeline",
-    "evidence": "Evidence",
-    "hypothesis": "Hypothesis",
-    "movement": "Movement",
-}
 
-st.set_page_config(page_title="AEGIS pipelines", layout="wide")
+def _chart_label(meta: dict) -> str:
+    return meta.get("chart") or meta.get("label", "Case")
 
-st.title("RAG pipeline overview")
-st.caption("Demo metrics for the hackathon stack. Not live model scores.")
 
-case_id = st.sidebar.selectbox("Case", ["C-2041", "C-2042", "C-2043"], index=0)
-metrics = get_all_metrics(case_id)
-st.sidebar.markdown(f"**{metrics['indexed_chunks']:,}** chunks indexed")
-st.sidebar.caption(f"{metrics['embedding_model']} · {metrics['reranker']}")
+def accuracy_chart_for_case(case_id: str) -> pd.DataFrame:
+    ev = get_eval_detail(case_id, "evidence")
+    label = _chart_label(EVAL_CASES[case_id])
+    acc = round(ev.get("f1", 0) * 100, 1)
+    return pd.DataFrame({"Accuracy %": [acc]}, index=[label])
 
-c1, c2 = st.columns(2)
-c1.metric("Mean accuracy (domains)", f"{metrics['aggregate_accuracy'] * 100:.0f}%")
-c2.metric("Pipelines", len(DOMAINS))
 
-chart_df = pd.DataFrame(
-    {
-        "domain": [DOMAIN_LABELS.get(d["domain"], d["domain"]) for d in metrics["domains"]],
-        "accuracy %": [d["overall_accuracy"] * 100 for d in metrics["domains"]],
-    }
-).set_index("domain")
-st.bar_chart(chart_df)
+st.set_page_config(page_title="Search accuracy", layout="wide")
 
-st.subheader("Pipelines")
-tab_labels = [DOMAIN_LABELS.get(d, d) for d in DOMAINS]
-tabs = st.tabs(tab_labels)
+if st.sidebar.button("Refresh metrics"):
+    refresh_metrics_cache()
+    st.rerun()
 
-for tab, domain in zip(tabs, DOMAINS):
-    with tab:
-        p = get_pipeline(domain, case_id)
-        st.write(f"**{p['label']}** — `{p['model']}`")
-        a, b = st.columns(2)
-        a.metric("Accuracy", f"{p['overall_accuracy'] * 100:.0f}%")
-        b.metric("Confidence", f"{p['model_confidence'] * 100:.0f}%")
+case_id = st.sidebar.selectbox(
+    "Case",
+    list(EVAL_CASES.keys()),
+    format_func=lambda c: _chart_label(EVAL_CASES[c]),
+)
 
-        stages_df = pd.DataFrame(
-            [
-                {
-                    "stage": s["label"],
-                    "score": f"{s['score'] * 100:.0f}%",
-                    "ms": s["latency_ms"],
-                }
-                for s in p["stages"]
-            ]
-        )
-        st.dataframe(stages_df, use_container_width=True, hide_index=True)
+ev = get_eval_detail(case_id, "evidence")
+name = _chart_label(EVAL_CASES[case_id])
 
-        if p.get("outputs"):
-            out_df = pd.DataFrame(
-                [
-                    {
-                        "field": o["label"],
-                        "value": o.get("value", ""),
-                        "conf": f"{o['confidence'] * 100:.0f}%",
-                    }
-                    for o in p["outputs"]
-                ]
-            )
-            st.dataframe(out_df, use_container_width=True, hide_index=True)
+st.title("Evidence search accuracy")
+st.caption(f"{case_id} · {ev.get('queries', 0)} test searches")
+
+st.bar_chart(accuracy_chart_for_case(case_id))
+
+if ev.get("note"):
+    st.info(ev["note"])
 
 st.divider()
-st.subheader("Evidence search (demo)")
-query = st.text_input("Query", value="DNA suspect", label_visibility="collapsed")
-if st.button("Search", type="primary") or query:
-    tokens = set(re.findall(r"\w+", query.lower()))
-    hits = 0
-    case_filter = st.sidebar.checkbox("Only this case", value=True)
-    for item in EVIDENCE_INDEX:
-        meta = item.get("metadata", {})
-        if case_filter and meta.get("case_id") != case_id:
-            continue
-        text = (item.get("document", "") + str(meta)).lower()
-        if any(t in text for t in tokens):
-            hits += 1
-    rag = search_rag_meta(query, 5, min(hits, 5))
-    st.write(f"**{hits}** matching docs · **{rag['chunks_used']}** used in context")
-    with st.expander("Retrieval details"):
-        st.json(rag)
+query = st.text_input("Try a search", placeholder="e.g. mooring hook CCTV")
+if query:
+    evidence, _, _, _ = load_stores(DATA_DIR)
+    if not evidence:
+        evidence = EVIDENCE_INDEX
+    out = retrieve_evidence(evidence, query, n_results=5, case_id=case_id)
+    if not out["results"]:
+        st.caption("No matches.")
+    for r in out["results"]:
+        st.text(r["document"])

@@ -32,7 +32,7 @@ const BRIEF_PROMPTS = [
   {
     title: "Evidence digest",
     prompt:
-      "Summarize highest-risk evidence for C-2041 in 5 bullets — cite IDs like EV-00x where possible.",
+      "Summarize highest-risk evidence for MG-101 in 5 bullets — cite IDs like EV-00x where possible.",
     hint: "Executive-style list",
   },
 ] as const;
@@ -65,7 +65,7 @@ function CopilotRoutePage() {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-lg font-semibold tracking-tight text-gradient">Copilot session</h1>
               <Badge variant="outline" className="border-primary/30 font-mono text-[10px]">
-                C-2041
+                MG-101
               </Badge>
               <span className="text-xs text-muted-foreground">Investigation briefing · evidence corpus</span>
             </div>
