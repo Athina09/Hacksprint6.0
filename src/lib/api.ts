@@ -3,6 +3,8 @@
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface AutopsyRecord {
+  case_id?: string;
+  victim_name?: string | null;
   "CPR Number": string;
   Age: number;
   Sex: string;

@@ -2,11 +2,13 @@
 
 AUTOPSIES = [
     {
+        "case_id": "C-2041",
+        "victim_name": "R. Suresh",
         "CPR Number": "CPR/2025/CHN/0891",
         "Age": 34,
         "Sex": "M",
-        "Height": 172,
-        "Weight": 68,
+        "Height": 174,
+        "Weight": 69,
         "Putrefaction": 2,
         "Putre_level": "Early",
         "Algor Mortis": 1,
@@ -14,9 +16,11 @@ AUTOPSIES = [
         "Livor Mortis": "Fixed posterior",
         "Stomach Contents": "Rice, vegetables — ~2h pre-mortem",
         "Vitreous Potassium": 8.2,
-        "Entomology": "Calliphoridae stage II — 18–24h PMI",
+        "Entomology": "Calliphoridae stage II — 8–10h PMI estimate",
     },
     {
+        "case_id": "C-2043",
+        "victim_name": "Pending ID",
         "CPR Number": "CPR/2025/MDU/0442",
         "Age": 28,
         "Sex": "F",
@@ -32,6 +36,8 @@ AUTOPSIES = [
         "Entomology": "No colonization",
     },
     {
+        "case_id": "C-2042",
+        "victim_name": None,
         "CPR Number": "CPR/2025/CBE/0310",
         "Age": 45,
         "Sex": "M",

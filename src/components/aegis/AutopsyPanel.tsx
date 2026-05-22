@@ -5,6 +5,8 @@ import {
   Upload, FileText, Scan, CheckCircle, Loader2, ChevronRight,
 } from "lucide-react";
 import anatomyImg from "@/assets/anatomy.jpeg";
+import { getCaseBinding, bmiLabel, type CaseBinding } from "@/data/case-bindings";
+import { fetchAutopsyByCPR, type AutopsyRecord } from "@/lib/api";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -48,17 +50,6 @@ const HOTSPOTS: Hotspot[] = [
   { id: "arm-r",    name: "Right Arm",     x: 82,  y: 42,   severity: "low",      injuryType: "No Injury",             weight: "N/A",    bleeding: "None",                        fracture: "None",                           laceration: "None",             observation: "Right arm unremarkable. No defensive injuries observed.", aiInsight: "Absence of right-arm defensive wounds suggests attacker approached from victim's right side.",        causeContribution: "NONE",            healthPct: 98,  toxicology: "None",                             fluid: "None",           layers: ["organs","skeletal","heatmap"] },
   { id: "leg-l",    name: "Left Leg",      x: 43,  y: 76,   severity: "medium",   injuryType: "Post-mortem Abrasion",  weight: "N/A",    bleeding: "None (post-mortem)",          fracture: "None",                           laceration: "Deep 8.0cm",       observation: "Post-mortem drag mark 8.0cm depth 1.3cm on left thigh. Body relocated after death.", aiInsight: "Drag pattern orientation consistent with body moved ~4 meters post-mortem. Confirms relocation.",    causeContribution: "INDICATOR",       healthPct: 78,  toxicology: "None",                             fluid: "None",           layers: ["organs","skeletal","heatmap"] },
   { id: "leg-r",    name: "Right Leg",     x: 57,  y: 76,   severity: "low",      injuryType: "No Injury",             weight: "N/A",    bleeding: "None",                        fracture: "None",                           laceration: "None",             observation: "Right leg unremarkable. No trauma identified.", aiInsight: "No right-leg injuries. Confirms unidirectional assault approach from victim's right.",               causeContribution: "NONE",            healthPct: 97,  toxicology: "None",                             fluid: "None",           layers: ["organs","skeletal","heatmap"] },
-];
-
-const AI_INSIGHTS = [
-  "Brain hemorrhage detected — primary cause of death confirmed",
-  "Liver trauma indicates blunt force abdominal impact",
-  "Hemoperitoneum ~1,200 ml — internal bleeding active at time of recovery",
-  "Defensive wounds on left arm confirm victim was conscious during assault",
-  "Diazepam trace suggests pre-assault chemical sedation",
-  "Post-mortem body relocation confirmed via livor mortis analysis",
-  "Cell tower + physical evidence converge: TOD window 20:15–20:55",
-  "Suspect S-118 DNA match at 99.2% on recovered weapon",
 ];
 
 const SEV: Record<Sev, { ring: string; glow: string; fill: string; text: string; badge: string; dot: string; heatmap: string }> = {
@@ -384,9 +375,13 @@ function ScanLine() {
   );
 }
 
-function InsightTicker() {
+function InsightTicker({ insights }: { insights: string[] }) {
   const [idx, setIdx] = useState(0);
-  useEffect(() => { const t = setInterval(() => setIdx(i => (i + 1) % AI_INSIGHTS.length), 3200); return () => clearInterval(t); }, []);
+  useEffect(() => {
+    if (!insights.length) return;
+    const t = setInterval(() => setIdx(i => (i + 1) % insights.length), 3200);
+    return () => clearInterval(t);
+  }, [insights.length]);
   return (
     <div className="rounded-lg border border-fuchsia-500/25 bg-fuchsia-950/20 p-2.5 min-h-[52px]">
       <div className="flex items-center gap-1.5 mb-1 text-fuchsia-400 text-[9px] font-bold uppercase tracking-widest">
@@ -395,7 +390,7 @@ function InsightTicker() {
       <AnimatePresence mode="wait">
         <motion.p key={idx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.35 }} className="text-[10px] text-fuchsia-200 leading-snug">
-          {AI_INSIGHTS[idx]}
+          {insights[idx] ?? ""}
         </motion.p>
       </AnimatePresence>
     </div>
@@ -415,7 +410,31 @@ function Placeholder({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
-function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l: Layer) => void; dataLoaded: boolean }) {
+function profileRows(binding: CaseBinding, record: AutopsyRecord | null): [string, string][] {
+  if (!record) {
+    return [
+      ["NAME", binding.victimName],
+      ["CPR", binding.cpr],
+    ];
+  }
+  const sex = record.Sex === "M" ? "Male" : record.Sex === "F" ? "Female" : record.Sex;
+  return [
+    ["NAME", binding.victimName],
+    ["AGE", String(record.Age)],
+    ["SEX", sex],
+    ["HEIGHT", `${record.Height} cm`],
+    ["WEIGHT", `${record.Weight} kg`],
+    ["BMI", bmiLabel(record.Height, record.Weight)],
+    ["CPR", record["CPR Number"]],
+  ];
+}
+
+function LeftPanel({
+  layer, setLayer, dataLoaded, binding, record,
+}: {
+  layer: Layer; setLayer: (l: Layer) => void; dataLoaded: boolean;
+  binding: CaseBinding; record: AutopsyRecord | null;
+}) {
   return (
     <div className="flex flex-col gap-3 p-3 border-r border-white/5 overflow-y-auto">
       <div>
@@ -425,7 +444,7 @@ function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
             className="rounded-lg border border-white/5 bg-slate-900/50 p-2.5 space-y-1.5">
-            {[["NAME","R. Suresh"],["AGE","34"],["SEX","Male"],["HEIGHT","174 cm"],["WEIGHT","69 kg"],["BMI","22.8 — Normal"]].map(([k,v]) => (
+            {profileRows(binding, record).map(([k, v]) => (
               <div key={k} className="flex justify-between items-baseline">
                 <span className="text-[8px] uppercase tracking-widest text-slate-500">{k}</span>
                 <span className="text-[11px] font-medium text-white">{v}</span>
@@ -440,8 +459,8 @@ function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l
         {!dataLoaded
           ? <div className="font-mono text-sm font-bold text-slate-600">— — Hours</div>
           : <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div className="font-mono text-lg font-bold text-cyan-300">8 – 10 Hours</div>
-              <div className="text-[9px] text-slate-500 mt-0.5">Vitreous potassium + algor mortis</div>
+              <div className="font-mono text-lg font-bold text-cyan-300">{binding.pmiDisplay}</div>
+              <div className="text-[9px] text-slate-500 mt-0.5">{binding.pmiNote}</div>
             </motion.div>
         }
       </div>
@@ -459,7 +478,7 @@ function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l
         </div>
       </div>
 
-      {dataLoaded && <InsightTicker />}
+      {dataLoaded && <InsightTicker insights={binding.liveInsights} />}
 
       <div className="rounded-lg border border-red-500/25 bg-red-950/15 p-2.5">
         <div className="text-[8px] uppercase tracking-widest text-red-400 mb-1">Cause of Death</div>
@@ -467,7 +486,7 @@ function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l
           ? <p className="text-[9px] text-slate-600 italic">Upload report to reveal findings</p>
           : <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
               className="text-[9px] text-slate-300 leading-relaxed">
-              Blunt force trauma — occipital region with depressed skull fracture and subdural hemorrhage. Secondary: hepatic hemorrhage.
+              {binding.causeOfDeath}
             </motion.p>
         }
       </div>
@@ -475,7 +494,12 @@ function LeftPanel({ layer, setLayer, dataLoaded }: { layer: Layer; setLayer: (l
   );
 }
 
-function RightPanel({ selected, onSelect, dataLoaded }: { selected: Hotspot | null; onSelect: (h: Hotspot) => void; dataLoaded: boolean }) {
+function RightPanel({
+  selected, onSelect, dataLoaded, binding,
+}: {
+  selected: Hotspot | null; onSelect: (h: Hotspot) => void; dataLoaded: boolean;
+  binding: CaseBinding;
+}) {
   return (
     <div className="flex flex-col gap-3 p-3 border-l border-white/5 overflow-y-auto">
       <Label>Organ Health Status</Label>
@@ -517,7 +541,7 @@ function RightPanel({ selected, onSelect, dataLoaded }: { selected: Hotspot | nu
         <div>
           <Label>Key Forensic Findings</Label>
           <ul className="space-y-1.5">
-            {["3 patterned blunt impacts — iron rod (87cm)","Hemoperitoneum ~1,200 ml confirmed","Post-mortem relocation via livor mortis","Trace diazepam — pre-assault sedation","DNA match S-118 at 99.2% on weapon","Defensive wounds: victim conscious at onset"].map((f, i) => (
+            {binding.forensicFindings.map((f, i) => (
               <motion.li key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06 }} className="flex gap-2 text-[9px] text-slate-400 leading-snug">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-500/60" />{f}
@@ -532,7 +556,9 @@ function RightPanel({ selected, onSelect, dataLoaded }: { selected: Hotspot | nu
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-export function AutopsyPanel() {
+export function AutopsyPanel({ caseId }: { caseId: string }) {
+  const binding = getCaseBinding(caseId);
+  const [record, setRecord] = useState<AutopsyRecord | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [closedCriticals, setClosedCriticals] = useState<Set<string>>(new Set());
   const [dynSelected, setDynSelected] = useState<Hotspot | null>(null);
@@ -545,6 +571,16 @@ export function AutopsyPanel() {
   const [fileName, setFileName] = useState("");
 
   const isSimulating = simPhase !== "idle";
+
+  useEffect(() => {
+    if (caseId !== "C-2041") return;
+    fetchAutopsyByCPR(binding.cpr)
+      .then(r => {
+        setRecord(r);
+        setDataLoaded(true);
+      })
+      .catch(() => {});
+  }, [caseId, binding.cpr]);
 
   async function handleFile(file: File) {
     setShowUpload(false);
@@ -566,6 +602,9 @@ export function AutopsyPanel() {
   function handleDismiss() {
     setSimPhase("idle");
     setDataLoaded(true);
+    if (!record && caseId === "C-2041") {
+      fetchAutopsyByCPR(binding.cpr).then(setRecord).catch(() => {});
+    }
   }
 
   const layerTint = LAYERS.find(l => l.id === layer)?.tint;
@@ -601,10 +640,11 @@ export function AutopsyPanel() {
           <div className="flex items-center gap-3">
             <Eye className="h-3.5 w-3.5 text-cyan-500" />
             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-400">Forensic Autopsy Visualization</span>
-            <span className="rounded border border-cyan-500/30 bg-cyan-950/40 px-2 py-0.5 font-mono text-[9px] text-cyan-400">CASE C-2041</span>
+            <span className="rounded border border-cyan-500/30 bg-cyan-950/40 px-2 py-0.5 font-mono text-[9px] text-cyan-400">CASE {binding.caseId}</span>
+            <span className="rounded border border-white/10 bg-slate-900/60 px-2 py-0.5 font-mono text-[9px] text-slate-400">{binding.autopsyReportId}</span>
             {dataLoaded && <span className="rounded border border-emerald-500/30 bg-emerald-950/30 px-2 py-0.5 font-mono text-[9px] text-emerald-400 flex items-center gap-1"><CheckCircle className="h-2.5 w-2.5" />REPORT LOADED</span>}
           </div>
-          <div className="text-[9px] text-slate-500 mt-0.5 ml-6">Report: 26 Apr 2025 · 23:47 &nbsp;|&nbsp; Pathologist: Dr. K. Meenakshi, CFSL Chennai</div>
+          <div className="text-[9px] text-slate-500 mt-0.5 ml-6">Report: {binding.reportDate} &nbsp;|&nbsp; Pathologist: {binding.pathologist} &nbsp;|&nbsp; {binding.cpr}</div>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowUpload(true)}
@@ -625,7 +665,7 @@ export function AutopsyPanel() {
 
       {/* 3-column layout */}
       <div className="grid" style={{ gridTemplateColumns: "210px 1fr 210px", minHeight: 580 }}>
-        <LeftPanel layer={layer} setLayer={setLayer} dataLoaded={dataLoaded} />
+        <LeftPanel layer={layer} setLayer={setLayer} dataLoaded={dataLoaded} binding={binding} record={record} />
 
         {/* Center */}
         <div ref={containerRef} className="relative bg-black overflow-hidden flex items-center justify-center" style={{ minHeight: 580 }}
@@ -705,7 +745,7 @@ export function AutopsyPanel() {
           </AnimatePresence>
         </div>
 
-        <RightPanel selected={anySelected} onSelect={toggle} dataLoaded={dataLoaded} />
+        <RightPanel selected={anySelected} onSelect={toggle} dataLoaded={dataLoaded} binding={binding} />
       </div>
 
       {/* Bottom table */}

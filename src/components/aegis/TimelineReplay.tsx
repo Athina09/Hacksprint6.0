@@ -662,7 +662,7 @@ function mapSeverity(s: string): ReplayStep["severity"] | undefined {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export function TimelineReplay() {
+export function TimelineReplay({ caseId }: { caseId: string }) {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -679,10 +679,10 @@ export function TimelineReplay() {
   const isSimulating = simPhase !== "idle";
 
   useEffect(() => {
-    fetchTimeline("C-2041")
+    fetchTimeline(caseId)
       .then(r => setBackendEvents(r.timeline))
       .catch(() => {});
-  }, []);
+  }, [caseId]);
 
   const steps = useMemo<ReplayStep[]>(() => {
     if (backendEvents.length === 0) return STEPS;
@@ -746,7 +746,7 @@ export function TimelineReplay() {
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-400">Timeline Replay</span>
             <span className="text-[9px] text-slate-600">·</span>
-            <span className="text-[10px] font-bold text-slate-400 tracking-widest">Case C-2041</span>
+            <span className="text-[10px] font-bold text-slate-400 tracking-widest">Case {caseId}</span>
             {dataLoaded && <span className="rounded border border-emerald-500/30 bg-emerald-950/30 px-2 py-0.5 font-mono text-[9px] text-emerald-400 flex items-center gap-1"><CheckCircle className="h-2.5 w-2.5" />{steps.length} EVENTS</span>}
           </div>
           <div className="text-[9px] text-slate-500 tracking-wide">Step by Step Investigation Roadmap</div>

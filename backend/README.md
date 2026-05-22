@@ -17,7 +17,13 @@ cp ../.env.example ../.env
 uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Then run the frontend (`npm run dev` from project root). Vite proxies `/api` and `/pmi` to port 8000.
+Run everything from the project root:
+
+```bash
+npm run dev:all
+```
+
+Or separately: `uvicorn` here, `npm run dev` at repo root (Vite proxies `/api` and `/pmi` to port 8000), and `streamlit run streamlit_rag_dashboard.py` below.
 
 ## Encrypted stores
 

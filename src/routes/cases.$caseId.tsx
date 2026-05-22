@@ -9,6 +9,7 @@ import { AutopsyPanel } from "@/components/aegis/AutopsyPanel";
 import { Copilot } from "@/components/aegis/Copilot";
 // import { WhatIfPanel } from "@/components/aegis/WhatIfPanel";
 import { cases, similarCases, evidenceVault } from "@/data/data";
+import { getCaseBinding } from "@/data/case-bindings";
 import { ChevronLeft, GitBranch, Layers, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { ReactFlowProvider } from "reactflow";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/cases/$caseId")({
 function CaseWorkspace() {
   const { caseId } = Route.useParams();
   const c = cases.find((x) => x.id === caseId) ?? cases[0];
+  const binding = getCaseBinding(caseId);
   const [tab, setTab] = useState<  "timeline" | "autopsy" | "movement " | "graph">("autopsy");
 
   return (
@@ -87,10 +89,10 @@ function CaseWorkspace() {
         <div className={`grid grid-cols-1 gap-4 ${tab === "graph" ? "xl:grid-cols-[1fr_360px]" : ""}`}>
           {/* Center stage */}
           <div className="space-y-4">
-            {tab === "graph" && (
+            {tab === "graph" && binding.hasInvestigationGraph && (
               <div className="glass relative h-[640px] overflow-hidden rounded-xl">
                 <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between border-b border-border/40 bg-background/40 px-3 py-2 backdrop-blur">
-                  <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Living Evidence Canvas · 15 nodes · 16 edges</div>
+                  <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Living Evidence Canvas · {caseId} · 15 nodes · 16 edges</div>
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                     <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary" /> link</span>
                     <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger" /> suspicious</span>
@@ -101,9 +103,14 @@ function CaseWorkspace() {
                 </ReactFlowProvider>
               </div>
             )}
-            {tab === "timeline" && <TimelineReplay />}
-            {tab === "movement" && <MovementMap />}
-            {tab === "autopsy" && <AutopsyPanel />}
+            {tab === "graph" && !binding.hasInvestigationGraph && (
+              <div className="glass rounded-xl px-6 py-12 text-center text-sm text-muted-foreground">
+                Investigation graph is seeded for <span className="font-mono text-foreground">C-2041</span> only. Open that case for the full network view.
+              </div>
+            )}
+            {tab === "timeline" && <TimelineReplay caseId={caseId} />}
+            {tab === "movement" && <MovementMap caseId={caseId} />}
+            {tab === "autopsy" && <AutopsyPanel caseId={caseId} />}
 
             {/* Always-visible secondary insights */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

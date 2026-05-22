@@ -97,8 +97,12 @@ query = st.text_input("Query", value="DNA suspect", label_visibility="collapsed"
 if st.button("Search", type="primary") or query:
     tokens = set(re.findall(r"\w+", query.lower()))
     hits = 0
+    case_filter = st.sidebar.checkbox("Only this case", value=True)
     for item in EVIDENCE_INDEX:
-        text = (item.get("document", "") + str(item.get("metadata", {}))).lower()
+        meta = item.get("metadata", {})
+        if case_filter and meta.get("case_id") != case_id:
+            continue
+        text = (item.get("document", "") + str(meta)).lower()
         if any(t in text for t in tokens):
             hits += 1
     rag = search_rag_meta(query, 5, min(hits, 5))

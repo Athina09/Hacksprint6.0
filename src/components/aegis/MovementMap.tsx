@@ -6,6 +6,7 @@ import { heatmapZones, movementPath } from "@/data/data";
 import { useDistrictFilter } from "@/contexts/DistrictFilterContext";
 import { MapInteractChrome } from "@/components/aegis/MapInteractChrome";
 import { fetchMovement, type MovementPoint } from "@/lib/api";
+import { getCaseBinding } from "@/data/case-bindings";
 import { cn } from "@/lib/utils";
 
 const MOVEMENT_DISTRICT = "Chennai";
@@ -204,7 +205,8 @@ function SimOverlay({ phase, fileName, progress, onDismiss }: {
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-export function MovementMap() {
+export function MovementMap({ caseId }: { caseId: string }) {
+  const binding = getCaseBinding(caseId);
   const { district: districtFilter } = useDistrictFilter();
   const ref = useRef<HTMLDivElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -223,10 +225,14 @@ export function MovementMap() {
   const showReplay = districtFilter === null || districtFilter === MOVEMENT_DISTRICT;
 
   useEffect(() => {
-    fetchMovement("C-2041")
+    if (!binding.hasMovement) {
+      setPoints([]);
+      return;
+    }
+    fetchMovement(caseId)
       .then(r => setPoints(r.movement))
       .catch(() => {});
-  }, []);
+  }, [caseId, binding.hasMovement]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -320,7 +326,7 @@ export function MovementMap() {
 
       {!showReplay && districtFilter && dataLoaded && (
         <div className="pointer-events-none absolute bottom-3 left-3 right-16 z-[500] rounded-md border border-primary/35 bg-background/85 px-3 py-2 text-center text-[11px] text-muted-foreground backdrop-blur">
-          Movement replay is only modeled for <span className="font-medium text-foreground">{MOVEMENT_DISTRICT}</span> (C-2041).
+          Movement replay is only modeled for <span className="font-medium text-foreground">{MOVEMENT_DISTRICT}</span> ({binding.caseId}).
           Map centered on <span className="font-medium text-foreground">{districtFilter}</span>.
         </div>
       )}

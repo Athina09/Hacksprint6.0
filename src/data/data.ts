@@ -355,7 +355,7 @@ export const autopsy = {
     { name: "Algor Mortis", value: "31.4 °C core", note: "≈ 2.5h post-mortem at recovery" },
     { name: "Rigor Mortis", value: "Jaw + neck onset", note: "Early (<4h)" },
     { name: "Livor Mortis", value: "Posterior fixed", note: "Inconsistent w/ position ⚠" },
-    { name: "Vitreous Potassium", value: "6.1 mmol/L", note: "Supports 2–4h interval" },
+    { name: "Vitreous Potassium", value: "8.2 mmol/L", note: "Supports 8–10h PMI window" },
     { name: "Stomach Contents", value: "Partially digested", note: "Meal ≈ 2h pre-mortem" },
     { name: "Entomology", value: "No colonization", note: "Recovery within 4h" },
   ],

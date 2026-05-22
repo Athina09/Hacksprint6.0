@@ -4,6 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "dev:all": "bash scripts/dev-all.sh",
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
